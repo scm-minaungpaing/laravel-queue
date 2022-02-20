@@ -2,7 +2,7 @@
   <div
     class="d-flex justify-content-center align-items-center home flex-column"
   >
-    <template v-if="progress > 0 && progress < 100">
+    <template v-if="progress > 0 && progress < 100 && batchId">
       <h3>Uploading progress {{ progress }}%</h3>
       <b-progress :max="100" height="20px" class="w-50 mt-2">
         <b-progress-bar
@@ -75,12 +75,12 @@ export default {
       if (!this.fileData) return alert("Please upload a file!");
       const formData = new FormData();
       formData.append("mycsv", this.fileData);
-      // console.log(process.env.API_URL)
 
       await this.$axios
         .$post(`${process.env.API_URL}/upload`, formData)
         .then((res) => {
           this.batchId = res.id;
+          localStorage.setItem('batchId', res.id)
           this.fileData = null;
         })
         .catch((err) => console.log(err));
@@ -99,6 +99,9 @@ export default {
               })
               .catch((err) => console.log(err));
           }
+          else {
+            localStorage.removeItem('batchId')
+          }
         }, 2000);
       }
       return;
@@ -107,6 +110,9 @@ export default {
   created() {
     this.jobProgress();
   },
+  mounted() {
+    this.batchId = localStorage.getItem('batchId')
+  }
 };
 </script>
 
